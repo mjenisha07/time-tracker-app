@@ -1,0 +1,77 @@
+<template>
+    <lightning-card title="Daily Project Time Logger" icon-name="utility:notes">
+        <div class="slds-p-around_medium">
+            <template for:each={timeEntries} for:item="entry" for:index="index">
+                <div key={entry.id} class="slds-box slds-m-bottom_small">
+                    <lightning-combobox
+                        name="project"
+                        label="Project"
+                        value={entry.projectId}
+                        placeholder="Select Project"
+                        options={projectOptions}
+                        data-index={index}
+                        onchange={handleProjectChange}>
+                    </lightning-combobox>
+
+                    <div class="slds-grid slds-gutters slds-m-top_small">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="time"
+                                label="Start Time"
+                                value={entry.startTime}
+                                data-index={index}
+                                onchange={handleStartTimeChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="time"
+                                label="End Time"
+                                value={entry.endTime}
+                                data-index={index}
+                                onchange={handleEndTimeChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+
+                    <lightning-textarea
+                        label="Comments"
+                        value={entry.comment}
+                        data-index={index}
+                        onchange={handleCommentChange}
+                        class="slds-m-top_small">
+                    </lightning-textarea>
+
+                    <br/>
+                    <lightning-button
+                        label="Remove"
+                        variant="destructive"
+                        data-index={index}
+                        class="slds-m-top_small"
+                        onclick={removeEntry}>
+                    </lightning-button>
+                </div>
+            </template>
+
+            <lightning-button
+                label="Add More Entry"
+                variant="neutral"
+                class="slds-m-bottom_medium"
+                onclick={addEntry}>
+            </lightning-button>
+
+            <p class="slds-text-body_medium slds-m-top_small">
+                🔍 Total Logged Hours: <strong>{totalHours}</strong>
+            </p>
+            
+
+            <div class="slds-align_absolute-center slds-m-top_large">
+                <lightning-button
+                    label="Submit"
+                    variant="brand"
+                    onclick={handleSubmit}>
+                </lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Missed_Log_Email</name>
+        <label>Send Missed Log Email</label>
+        <locationX>538</locationX>
+        <locationY>733</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <elementReference>MissedLogEmailSubject</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>MissedLogEmailBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientId</name>
+            <value>
+                <elementReference>$Record.UserID__r.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>bccRecipientAddressList</name>
+            <value>
+                <elementReference>$Record.UserID__r.Email</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Did_Employee_Log_Yesterday</name>
+        <label>Did Employee Log Yesterday?</label>
+        <locationX>528</locationX>
+        <locationY>451</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>NO</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_TimeLog_for_today</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Missed_Log_Email</targetReference>
+            </connector>
+            <label>NO</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>yesterdayDate</name>
+        <dataType>Date</dataType>
+        <expression>{!$Flow.CurrentDate} - 1</expression>
+    </formulas>
+    <interviewLabel>Missed Log Reminder Yesterday {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Missed Log Reminder Yesterday</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_TimeLog_for_today</name>
+        <label>Get TimeLog for today</label>
+        <locationX>536</locationX>
+        <locationY>302</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Did_Employee_Log_Yesterday</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Employee__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Log_Date__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>yesterdayDate</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Time_Log__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>410</locationX>
+        <locationY>48</locationY>
+        <connector>
+            <targetReference>Get_TimeLog_for_today</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Is_Active__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Employee__c</object>
+        <schedule>
+            <frequency>Daily</frequency>
+            <startDate>2025-04-14</startDate>
+            <startTime>07:00:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>MissedLogEmailBody</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>Hi {!$Record.First_Name__c}
+This is a reminder that you haven&apos;t logged your hours for yesterday ({!yesterdayDate}) in the Time Tracking App.
+Please ensure your timesheet is up to date.
+Thanks,
+Time Tracking App Team</text>
+    </textTemplates>
+    <textTemplates>
+        <name>MissedLogEmailSubject</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>⏰ Reminder: You missed logging hours for {!yesterdayDate}</text>
+    </textTemplates>
+</Flow>
